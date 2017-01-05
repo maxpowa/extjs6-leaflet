@@ -1,0 +1,7 @@
+{
+    "--title": "ExtJS Leaflet Docs",
+    "--output": "./dist/docs",
+    "--": [
+        "./ux"
+    ]
+}
