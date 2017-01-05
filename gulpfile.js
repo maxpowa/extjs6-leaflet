@@ -61,6 +61,6 @@ var gulp_gh_pages = require('gulp-gh-pages');
 function deploy() {
     return gulp.src(['./dist/**/*', './demo/**/*'])
         .pipe(gulp_gh_pages({
-            push: false
+            push: true
         }));
 }

@@ -4,7 +4,7 @@ Ext.Loader.setConfig({
 });
 
 Ext.Loader.setPath({
-  'Ext.ux': '../ux',
+  'Ext.ux': '.',
   'LeafletMapDemo': '.'
 });
 
