@@ -1,6 +1,7 @@
 // enable Ext autoloader
 Ext.Loader.setConfig({
-  enabled: true
+  enabled: true,
+  disableCaching:false
 });
 
 Ext.Loader.setPath({

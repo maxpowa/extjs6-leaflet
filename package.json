@@ -10,11 +10,13 @@
     "clean": "gulp clean",
     "build": "gulp build",
     "build:prod": "npm run clean && npm run build",
-    "deploy": "gulp deploy"
+    "deploy": "gulp deploy",
+    "serve": "gulp serve"
   },
   "devDependencies": {
     "del": "^2.2.2",
     "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-connect": "^5.0.0",
     "gulp-eslint": "^3.0.1",
     "gulp-gh-pages": "^0.5.4",
     "gulp-uglify": "^2.0.0"

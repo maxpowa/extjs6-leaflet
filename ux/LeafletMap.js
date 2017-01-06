@@ -16,7 +16,8 @@ Ext.define('Ext.ux.LeafletMap', {
     mapOptions: {
       zoom: 12
     },
-    tileLayer: null,
+
+    tileLayers: [],
     // urls and such
     tileLayerOptions: {
       tileLayerUrl: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
@@ -88,9 +89,9 @@ Ext.define('Ext.ux.LeafletMap', {
     return Ext.merge({}, this.options || this.getInitialConfig('mapOptions'));
   },
 
-  getTileLayerOptions: function() {
-    return Ext.merge({}, this.options || this.getInitialConfig('tileLayerOptions'));
-  },
+  // getTileLayerOptions: function() {
+  //   return Ext.merge({}, this.options || this.getInitialConfig('tileLayerOptions'));
+  // },
 
   updateUseLocation: function(useLocation) {
     var me = this;
@@ -118,8 +119,7 @@ Ext.define('Ext.ux.LeafletMap', {
       ll = window.L,
       element = me.body,
       mapOptions = me.getMapOptions(),
-      map,
-      tileLayer;
+      map;
 
     if (ll && !element.dom._leaflet) {
       // if no center property is given -> use default position
@@ -131,15 +131,18 @@ Ext.define('Ext.ux.LeafletMap', {
         mapOptions.center = new ll.LatLng(mapOptions.center.lat, mapOptions.center.lng);
       }
 
-      var tileOptions = me.getTileLayerOptions()
-      if (!!tileOptions.retinaTileLayerUrl && ll.Browser.retina) {
-        me.setTileLayer(new ll.TileLayer(tileOptions.retinaTileLayerUrl, tileOptions));
-      } else {
-        me.setTileLayer(new ll.TileLayer(tileOptions.tileLayerUrl, tileOptions));
+      var layers = me.getTileLayers() || [];
+      var tileOptions = me.getTileLayerOptions();
+      if (layers.length > 0) {
+        console.log('skipping');
+        // Skip adding default layers when layers are already populated
+      } else if (!!tileOptions.retinaTileLayerUrl && ll.Browser.retina) {
+        layers.unshift(new ll.TileLayer(tileOptions.retinaTileLayerUrl, tileOptions));
+      } else if (!!tileOptions.tileLayerUrl) {
+        layers.unshift(new ll.TileLayer(tileOptions.tileLayerUrl, tileOptions));
       }
-      var layers = mapOptions.layers || [];
-      layers.unshift(me.getTileLayer());
-      mapOptions.layers = layers; //[tileLayer];
+      me.setTileLayers(layers);
+      mapOptions.layers = layers;
 
       me.setMap(new ll.Map(element.dom, mapOptions));
       map = me.getMap();
@@ -153,9 +156,8 @@ Ext.define('Ext.ux.LeafletMap', {
       map.on('zoomend', me.onZoomEnd, me);
       map.on('movestart', me.onMoveStart, me);
       map.on('moveend', me.onMoveEnd, me);
-      me.fireEvent('maprender', me, map, tileLayer);
+      me.fireEvent('maprender', me, map, layers);
     }
-    this._rendered = true;
   },
 
   // @private
@@ -233,7 +235,7 @@ Ext.define('Ext.ux.LeafletMap', {
   onZoomEnd: function() {
     var mapOptions = this.getMapOptions(),
       map = this.getMap(),
-      tileLayer = this.getTileLayer(),
+      tileLayers = this.getTileLayers(),
       zoom;
 
     zoom = map.getZoom() || 10;
@@ -242,36 +244,36 @@ Ext.define('Ext.ux.LeafletMap', {
       zoom: zoom
     });
 
-    this.fireEvent('zoomend', this, map, tileLayer, zoom);
+    this.fireEvent('zoomend', this, map, tileLayers, zoom);
   },
 
   // @private
   onMoveStart: function() {
     var map = this.getMap(),
-      tileLayer = this.getTileLayer();
+      tileLayers = this.getTileLayers();
 
-    this.fireEvent('movestart', this, map, tileLayer);
+    this.fireEvent('movestart', this, map, tileLayers);
   },
 
   // @private
   onMoveEnd: function() {
     var map = this.getMap(),
-      tileLayer = this.getTileLayer();
+      tileLayers = this.getTileLayers();
 
-    this.fireEvent('moveend', this, map, tileLayer);
+    this.fireEvent('moveend', this, map, tileLayers);
   },
 
   // @private
   destroy: function() {
     var map = this.getMap(),
-      layer = this.getTileLayer();
+      layers = this.getTileLayers();
 
     if (map) {
       map.remove();
       map = null;
     }
-    if (layer) {
-      layer = null;
+    if (layers) {
+      layers = null;
     }
 
     this.callParent();
